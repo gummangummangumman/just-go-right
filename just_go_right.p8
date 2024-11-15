@@ -2,24 +2,53 @@ pico-8 cartridge // http://www.pico-8.com
 version 42
 __lua__
 function _init()
- x = 32
- facing_left = false
+	two_player = false
+	player1 = {
+	 x = 32,
+	 facing_left = false,
+	}
+	player2 = {
+		x = 32,
+		facing_left = false,
+	}
 end
 
 function _update()
+	//p1
 	if btn(➡️) then
-	 x += 1
-	 facing_left = false
+	 player1.x += 1
+	 player1.facing_left = false
 	end
 	if btn(⬅️) then
-	 x -= 1
-	 facing_left = true
+	 player1.x -= 1
+	 player1.facing_left = true
+	end
+	
+	//p2
+	if btn(➡️, 1) then
+	 player2.x += 1
+	 player2.facing_left = false
+	end
+	if btn(⬅️, 1) then
+	 player2.x -= 1
+	 player2.facing_left = true
+	end
+
+	//todo put this in menu
+	if btn(4, 1) then
+		two_player = true
+	end
+	if btn(5, 1) then
+		two_player = false
 	end
 end
 
 function _draw()
 	cls()
-	spr(1, x, 32, 2, 2, facing_left)
+	spr(1, player1.x, 32, 2, 2, player1.facing_left)
+	if (two_player) then
+		spr(1, player2.x, 64, 2, 2, player2.facing_left)
+	end
 end
 __gfx__
 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
