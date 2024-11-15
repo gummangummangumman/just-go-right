@@ -1,8 +1,54 @@
 pico-8 cartridge // http://www.pico-8.com
 version 42
 __lua__
+-- game states
 function _init()
 	two_player = false
+
+
+	//game states
+	scene="menu"
+end
+
+function _update()
+	if (scene=="menu") then
+		menu_update()
+	elseif (scene=="game") then
+		game_update()
+	end
+end
+
+function _draw()
+	if (scene=="menu") then
+		menu_draw()
+	elseif (scene=="game") then
+		game_draw()
+	end
+end
+-->8
+-- menu
+function menu_update()
+	if btnp(❎) then
+		scene = "game"
+		game_init()
+	end
+	if btnp(❎, 1) then
+		two_player = not two_player
+	end
+end
+
+function menu_draw()
+	cls()
+	if (two_player) then
+		print("two player", 42, 53)
+	else
+		print("one player", 42, 53)
+	end
+	print("press ❎ to start", 30, 63)
+end
+-->8
+-- game
+function game_init()
 	player1 = {
 	 x = 32,
 	 facing_left = false,
@@ -11,40 +57,38 @@ function _init()
 		x = 32,
 		facing_left = false,
 	}
+	start_time = time()
 end
 
-function _update()
+function game_update()
 	//p1
 	if btn(➡️) then
 	 player1.x += 1
 	 player1.facing_left = false
 	end
 	if btn(⬅️) then
-	 player1.x -= 1
+	 if (player1.x > 0) then
+	 	player1.x -= 1
+	 end
 	 player1.facing_left = true
 	end
-	
+
 	//p2
 	if btn(➡️, 1) then
 	 player2.x += 1
 	 player2.facing_left = false
 	end
 	if btn(⬅️, 1) then
-	 player2.x -= 1
+		if (player2.x > 0) then
+	 	player2.x -= 1
+	 end
 	 player2.facing_left = true
-	end
-
-	//todo put this in menu
-	if btn(4, 1) then
-		two_player = true
-	end
-	if btn(5, 1) then
-		two_player = false
 	end
 end
 
-function _draw()
+function game_draw()
 	cls()
+	print(flr(time() - start_time))
 	spr(1, player1.x, 32, 2, 2, player1.facing_left)
 	if (two_player) then
 		spr(1, player2.x, 64, 2, 2, player2.facing_left)
