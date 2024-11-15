@@ -2,7 +2,18 @@ pico-8 cartridge // http://www.pico-8.com
 version 42
 __lua__
 function _init()
-	spr(1, 32, 32)
+ x = 32
+end
+
+function _update()
+	if btn(➡️) then
+	 x += 1
+	end
+end
+
+function _draw()
+	cls()
+	spr(1, x, 32)
 end
 __gfx__
 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
