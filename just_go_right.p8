@@ -135,11 +135,11 @@ function game_update()
 	end
 	
 	//game
-	if (player1.x > goal) then
+	if (player1.x > goal and player1.exited == false) then
 		add(p1_level_times, time() - level_start_time, level)
 		player1.exited = true
 	end
-	if (player2.x > goal) then
+	if (player2.x > goal and player2.exited == false) then
 		add(p2_level_times, time() - level_start_time, level)
 		player2.exited = true
 	end
@@ -263,28 +263,42 @@ function end_update()
 	end
 end
 
-
 function end_draw()
 	cls()
+	p1_wins = 0
+	p2_wins = 0
 	for k, v in pairs(level_effects) do
 		if v == "" then
 			v = "normal"
 		end
 		text = k..". "..v
 		if two_player then
-			if (p1_level_times[k] < p2_level_times[k]) then
-				text = text.." (p1)"
-			else
+			c = 6
+			if (p1_level_times[k] > p2_level_times[k]) then
 				text = text.." (p2)"
+				c = 12
+				p2_wins += 1
+			elseif (p1_level_times[k] < p2_level_times[k]) then
+				text = text.." (p1)"
+				c = 10
+				p1_wins += 1
+			else
+				text = text.." (tie)"
 			end
 		else
 			text = text.." - "..(p1_level_times[k] or "?").." s"
 		end
-		printc(text, 10 + k*10)
+		printc(text, 10 + k*10, c)
 	end
 
 	if two_player then
-		printc(":)", 20 + 10 * count(level_effects))
+		if p1_wins > p2_wins then
+			printc("player 1 wins!!!", 20 + 10 * count(level_effects), 10)
+		elseif p1_wins < p2_wins then
+			printc("player 2 wins!!!", 20 + 10 * count(level_effects), 12)
+		else
+			printc("it's a draw!", 20 + 10 * count(level_effects))
+		end
 	else
 		total_time = 0
 		for k, t in pairs(p1_level_times) do
@@ -300,9 +314,10 @@ end
 --util
 
 --horizontally centered text
-function printc(txt, y)
+function printc(txt, y, c)
 	y = y or 50
-	print(txt, 64 - #txt*2, y)
+	c = c or 6
+	print(txt, 64 - #txt*2, y, c)
 end
 __gfx__
 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
