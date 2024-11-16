@@ -5,7 +5,6 @@ __lua__
 function _init()
 	two_player = false
 
-
 	//game states
 	scene="menu"
 end
@@ -33,23 +32,39 @@ function menu_update()
 		game_init()
 	end
 	if btnp(❎, 1) then
-		two_player = not two_player
+		two_player = true
+	end
+	if btnp(🅾️, 1) then
+		two_player = false
 	end
 end
 
 function menu_draw()
 	cls()
 	if (two_player) then
-		print("two player", 42, 53)
+		print("two player", 44, 50)
 	else
-		print("one player", 42, 53)
+		print("one player", 44, 50)
+		if (flr(time() % 3) < 2) then
+			print("p2 press ❎ to join", 28, 114)
+		end
 	end
-	print("press ❎ to start", 30, 63)
+	print("press ❎ to start", 32, 60)
+
+	if (two_player) then
+		spr(1, 46, 32, 2, 2)
+		spr(1, 66, 32, 2, 2, true)
+	else
+		spr(1, 54, 32, 2, 2)
+	end
 end
 -->8
 -- game
 function game_init()
 	level = 0
+	normal_speed = 5
+	small_speed = 0.2
+
 	next_level()
 end
 
@@ -60,20 +75,35 @@ function next_level()
 	 y = 32,
 	 facing_left = false,
 	 exited = false,
+	 speed = normal_speed,
 	}
 	player2 = {
 		x = 32,
 		y = 64,
 		facing_left = false,
 		exited = false,
+		speed = normal_speed,
 	}
 	goal = 128-16
 	effect = get_effect(level)
-	start_time = time()
+	if (effect.growing) then
+		player1.growing_progress = 0
+		player1.small = true
+		player1.speed = small_speed
+		player1.growing_progress = 0 / 10
+		player2.small = true
+		player1.speed = small_speed
+	end
+	level_start_time = time()
 end
 
 function game_update()
+	player1.growing = false
+	player2.growing = false
 	//p1 inputs
+	if btn(⬆️) then
+		up(player1)
+	end
 	if btn(➡️) then
 		right(player1)
 	end
@@ -82,6 +112,9 @@ function game_update()
 	end
 
 	//p2 inputs
+	if btn(⬆️, 1) then
+		up(player2)
+	end
 	if btn(➡️, 1) then
 	 right(player2)
 	end
@@ -104,6 +137,8 @@ end
 function right(player)
 	if (effect.reversed) then
 		go_left(player)
+	elseif (player.growing) then
+		return
 	else
 		go_right(player)
 	end
@@ -112,42 +147,71 @@ end
 function left(player)
 	if (effect.reversed) then
 		go_right(player)
+	elseif (player.growing) then
+		return
 	else
 		go_left(player)
 	end
 end
 
+function up(player)
+	if (effect.growing and player.small) then
+		if (player.growing_progress < 30) then
+			player.growing_progress += 1
+			player.growing = true
+		else
+			player.small = false
+			player.speed = normal_speed
+		end
+	end
+end
+
 function go_left(player)
 	if (player.x > 0) then
-		player.x -= 1
+		player.x -= player.speed
 	end
 	player.facing_left = true
 end
 
 function go_right(player)
-	player.x += 1
+	player.x += player.speed
 	player.facing_left = false
 end
 
 function game_draw()
 	cls()
 	print("level "..level)
-	print(flr(time() - start_time))
+	print(flr(time() - level_start_time).." sec")
 	spr(32, goal, player1.y, 2, 2)
 	if (two_player) then
 		spr(32, goal, player2.y, 2, 2)
 	end
 	if (player1.exited == false) then
-		spr(1, player1.x, player1.y, 2, 2, player1.facing_left)
+		draw_player(player1)
 	end
 	if (two_player and player2.exited == false) then
-		spr(1, player2.x, player2.y, 2, 2, player2.facing_left)
+		draw_player(player2)
 	end
 	draw_tips()
 end
 
+function draw_player(player)
+if (effect.growing) then
+	if (player.growing) then
+		--todo consider showing player.growing_progress
+		spr(35, player.x, player.y + 6, 1, 1, player.facing_left)
+		return
+	end
+	if (player.small) then
+		spr(34, player.x, player.y + 6, 1, 1, player.facing_left)
+		return
+	end
+end
+spr(1, player.x, player.y, 2, 2, player.facing_left)
+end
+
 function draw_tips()
-	print(effect.tip, 64, 54)
+	print(effect.tip, 64 - #effect.tip * 2, 54)
 end
 -->8
 --levels/effects
@@ -158,6 +222,10 @@ effects = {
 	{
 		tip = "reversed!",
 		reversed = true,
+	},
+	{
+		tip = "reach for the stars",
+		growing = true,
 	},
 }
 
@@ -184,14 +252,14 @@ __gfx__
 00000000000000a0a0000000000000a0a00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-66666666666666600000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-63333333333333600000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-63333336333333600000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-63333366633333600000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-63333666663333600000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-63333366633333600000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-63333366633333600000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-63333333333333600000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+666666666666666000aa1000a0aaaa0a000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+633333333333336000a1aa00a01aa10a000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+633333363333336000a11100a0aaaa0a000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+633333666333336000aaaa00a0a11a0a000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+6333366666333360000aa000a00aa00a000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+633333666333336000aaaa00aaaaaaaa000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+6333336663333360000aa000000aa000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+633333333333336000a00a0000a00a00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 63333333333333600000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 63333333333333600000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 63333333333333600000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
