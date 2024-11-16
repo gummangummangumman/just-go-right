@@ -49,6 +49,12 @@ end
 -->8
 -- game
 function game_init()
+	level = 0
+	next_level()
+end
+
+function next_level()
+	level += 1
 	player1 = {
 	 x = 32,
 	 y = 32,
@@ -62,46 +68,70 @@ function game_init()
 		exited = false,
 	}
 	goal = 128-16
+	effect = get_effect(level)
 	start_time = time()
 end
 
 function game_update()
-	//p1
+	//p1 inputs
 	if btn(➡️) then
-		player1.x += 1
-		player1.facing_left = false
+		right(player1)
 	end
 	if btn(⬅️) then
-	 if (player1.x > 0) then
-	 	player1.x -= 1
-	 end
-	 player1.facing_left = true
-	end
-	if (player1.x > goal) then
-		player1.exited = true
+	 left(player1)
 	end
 
-	//p2
+	//p2 inputs
 	if btn(➡️, 1) then
-	 player2.x += 1
-	 player2.facing_left = false
-		if (player1.x > goal) then
-			player1.exited = true
-		end
+	 right(player2)
 	end
 	if btn(⬅️, 1) then
-		if (player2.x > 0) then
-	 	player2.x -= 1
-	 end
-	 player2.facing_left = true
+		left(player2)
+	end
+	
+	//game
+	if (player1.x > goal) then
+		player1.exited = true
 	end
 	if (player2.x > goal) then
 		player2.exited = true
 	end
+	if (player1.exited and (player2.exited or not two_player)) then
+		next_level()
+	end
+end
+
+function right(player)
+	if (effect.reversed) then
+		go_left(player)
+	else
+		go_right(player)
+	end
+end
+
+function left(player)
+	if (effect.reversed) then
+		go_right(player)
+	else
+		go_left(player)
+	end
+end
+
+function go_left(player)
+	if (player.x > 0) then
+		player.x -= 1
+	end
+	player.facing_left = true
+end
+
+function go_right(player)
+	player.x += 1
+	player.facing_left = false
 end
 
 function game_draw()
 	cls()
+	print("level "..level)
 	print(flr(time() - start_time))
 	spr(32, goal, player1.y, 2, 2)
 	if (two_player) then
@@ -113,6 +143,29 @@ function game_draw()
 	if (two_player and player2.exited == false) then
 		spr(1, player2.x, player2.y, 2, 2, player2.facing_left)
 	end
+	draw_tips()
+end
+
+function draw_tips()
+	print(effect.tip, 64, 54)
+end
+-->8
+--levels/effects
+effects = {
+	{
+		tip = "",
+	},
+	{
+		tip = "reversed!",
+		reversed = true,
+	},
+}
+
+function get_effect(level)
+	if (level==1) then
+		return effects[1]
+	end
+	return rnd(effects)
 end
 __gfx__
 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
