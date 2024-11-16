@@ -244,7 +244,7 @@ effects = {
 		reversed = true,
 	},
 	{
-		tip = "reach for the stars",
+		tip = "reach 4 the stars",
 		growing = true,
 	},
 }
@@ -278,7 +278,7 @@ function end_draw()
 				text = text.." (p2)"
 			end
 		else
-			text = text.." - "..(p1_level_times[k] or "?").." sec"
+			text = text.." - "..(p1_level_times[k] or "?").." s"
 		end
 		printc(text, 10 + k*10)
 	end
@@ -292,7 +292,7 @@ function end_draw()
 		end
 		printc("total time is...", 20 + 10 * count(level_effects))
 		pal(6, 10)
-		printc(total_time.." sec", 30 + 10 * count(level_effects))
+		printc(total_time.." seconds", 30 + 10 * count(level_effects))
 		pal()
 	end
 end
