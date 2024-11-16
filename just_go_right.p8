@@ -14,6 +14,8 @@ function _update()
 		menu_update()
 	elseif (scene=="game") then
 		game_update()
+	elseif (scene=="end") then
+		end_update()
 	end
 end
 
@@ -22,6 +24,8 @@ function _draw()
 		menu_draw()
 	elseif (scene=="game") then
 		game_draw()
+	elseif (scene=="end") then
+		end_draw()
 	end
 end
 -->8
@@ -42,18 +46,20 @@ end
 function menu_draw()
 	cls()
 	if (two_player) then
-		print("two player", 44, 50)
+		printc("two player", 50)
 	else
-		print("one player", 44, 50)
+		printc("one player", 50)
 		if (flr(time() % 3) < 2) then
-			print("p2 press ❎ to join", 28, 114)
+			printc("p2 press ❎ to join", 114)
 		end
 	end
-	print("press ❎ to start", 32, 60)
+	printc("press ❎ to start", 60)
 
 	if (two_player) then
 		spr(1, 46, 32, 2, 2)
+		pal(10, 12)
 		spr(1, 66, 32, 2, 2, true)
+		pal()
 	else
 		spr(1, 54, 32, 2, 2)
 	end
@@ -62,8 +68,13 @@ end
 -- game
 function game_init()
 	level = 0
+	max_level = 5
 	normal_speed = 5
 	small_speed = 0.2
+
+	p1_level_times = {}
+	p2_level_times = {}
+	level_effects = {}
 
 	next_level()
 end
@@ -86,13 +97,14 @@ function next_level()
 	}
 	goal = 128-16
 	effect = get_effect(level)
+	add(level_effects, effect.tip)
 	if (effect.growing) then
 		player1.growing_progress = 0
 		player1.small = true
 		player1.speed = small_speed
-		player1.growing_progress = 0 / 10
+		player2.growing_progress = 0 / 10
 		player2.small = true
-		player1.speed = small_speed
+		player2.speed = small_speed
 	end
 	level_start_time = time()
 end
@@ -124,12 +136,17 @@ function game_update()
 	
 	//game
 	if (player1.x > goal) then
+		add(p1_level_times, time() - level_start_time, level)
 		player1.exited = true
 	end
 	if (player2.x > goal) then
+		add(p2_level_times, time() - level_start_time, level)
 		player2.exited = true
 	end
 	if (player1.exited and (player2.exited or not two_player)) then
+		if (level == max_level) then
+			scene = "end"
+		end
 		next_level()
 	end
 end
@@ -190,7 +207,9 @@ function game_draw()
 		draw_player(player1)
 	end
 	if (two_player and player2.exited == false) then
+		pal(10, 12)
 		draw_player(player2)
+		pal()
 	end
 	draw_tips()
 end
@@ -234,6 +253,40 @@ function get_effect(level)
 		return effects[1]
 	end
 	return rnd(effects)
+end
+-->8
+--game over screen
+function end_update()
+	if btnp(❎) then
+		scene = "menu"
+	end
+end
+
+
+function end_draw()
+	cls()
+	for k, v in pairs(level_effects) do
+		if v == "" then
+			v = "normal"
+		end
+		text = k..". "..v
+		if two_player then
+			if (p1_level_times[k] < p2_level_times[k]) then
+				text = text.." (p1)"
+			else
+				text = text.." (p2)"
+			end
+		end
+		printc(text, 10 + k*10)
+	end
+end
+-->8
+--util
+
+--horizontally centered text
+function printc(txt, y)
+	y = y or 50
+	print(txt, 64 - #txt*2, y)
 end
 __gfx__
 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
@@ -294,7 +347,7 @@ __map__
 0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001010100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 __sfx__
 000100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
-0010000020940299402f9403494038940349402d94021940079400184000840008400184000840008400084001840018400184001840008400184000840008400084000840008400084000f4000f4000f4002840
+000400001c740227402874029740297402574020740187400a7400170000700007000070000700007000070001700017000170001700007000170000700007000070000700007000070000700007000070000700
 __music__
 00 01424344
 
