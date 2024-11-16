@@ -146,8 +146,9 @@ function game_update()
 	if (player1.exited and (player2.exited or not two_player)) then
 		if (level == max_level) then
 			scene = "end"
+		else
+			next_level()
 		end
-		next_level()
 	end
 end
 
@@ -276,8 +277,23 @@ function end_draw()
 			else
 				text = text.." (p2)"
 			end
+		else
+			text = text.." - "..(p1_level_times[k] or "?").." sec"
 		end
 		printc(text, 10 + k*10)
+	end
+
+	if two_player then
+		printc(":)", 20 + 10 * count(level_effects))
+	else
+		total_time = 0
+		for k, t in pairs(p1_level_times) do
+			total_time += t
+		end
+		printc("total time is...", 20 + 10 * count(level_effects))
+		pal(6, 10)
+		printc(total_time.." sec", 30 + 10 * count(level_effects))
+		pal()
 	end
 end
 -->8
