@@ -161,6 +161,7 @@ function game_update()
 	end
 	if (player1.exited and (player2.exited or not two_player)) then
 		if (level == max_level) then
+			end_init()
 			scene = "end"
 		else
 			next_level()
@@ -286,8 +287,12 @@ function get_effect(level)
 end
 -->8
 --game over screen
+function end_init()
+	game_over_time = time()
+end
+
 function end_update()
-	if btnp(❎) then
+	if btnp(❎) and elapsed() > 2 then
 		scene = "menu"
 	end
 end
@@ -342,6 +347,13 @@ function end_draw()
 		printc(total_time.." seconds", 30 + 10 * count(level_effects))
 		pal()
 	end
+	if (elapsed() > 8 and flr(time() % 3) < 2) then
+		printc("press ❎ to return", 114)
+	end
+end
+
+function elapsed()
+	return time() - game_over_time
 end
 -->8
 --util
