@@ -83,14 +83,14 @@ function next_level()
 	level += 1
 	player1 = {
 	 x = 16,
-	 y = 32,
+	 y = 38,
 	 facing_left = false,
 	 exited = false,
 	 speed = normal_speed,
 	}
 	player2 = {
 		x = 16,
-		y = 64,
+		y = 72,
 		facing_left = false,
 		exited = false,
 		speed = normal_speed,
@@ -241,7 +241,7 @@ function game_draw()
 				spr(66 + 2*flr((time() * 4 - level_start_time) % 4), 128-16, player2.y, 2, 2)
 		end
 	end
-	printc(effect.tip, 54)
+	printc(effect.tip, 60)
 end
 
 function draw_player(player)
