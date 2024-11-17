@@ -218,8 +218,10 @@ end
 
 function game_draw()
 	cls()
-	print("level "..level)
-	print(flr(time() - level_start_time).." sec")
+	print("level "..level.."/"..max_level)
+	if not two_player then
+		print(flr(time() - level_start_time).." sec")
+	end
 	spr(64, goal, player1.y, 2, 2)
 	if (two_player) then
 		spr(64, goal, player2.y, 2, 2)
