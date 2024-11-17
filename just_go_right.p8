@@ -386,7 +386,9 @@ function end_draw()
 	else
 		total_time = 0
 		for k, t in pairs(p1_level_times) do
-			total_time += t
+			if k <= max_level do
+				total_time += t
+			end
 		end
 		printc("total time is...", 20 + 10 * count(level_effects))
 		pal(6, 10)
