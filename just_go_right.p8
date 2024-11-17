@@ -190,10 +190,22 @@ function left(player)
 end
 
 function down(player)
-	player.ducking = true
+	if not effect.reversed then
+		player.ducking = true
+	else
+		grow(player)
+	end
 end
 
 function up(player)
+	if effect.reversed then
+		player.ducking = true
+	else
+		grow(player)
+	end
+end
+
+function grow(player)
 	if (effect.growing and player.small) then
 		if (player.growing_progress < 15) then
 			player.growing_progress += 1
@@ -275,6 +287,11 @@ effects = {
 	},
 	{
 		tip = "duck!",
+		cannon = true,
+	},
+	{
+		tip = "reversed duck!",
+		reversed = true,
 		cannon = true,
 	},
 }
